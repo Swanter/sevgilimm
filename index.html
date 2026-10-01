@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seni Çok Seviyorum ❤️</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Caveat & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rose: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        }
+                    },
+                    fontFamily: {
+                        handwriting: ['Caveat', 'cursive'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7aa 50%, #fecdd3 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        .handwriting {
+            font-family: 'Caveat', cursive;
+        }
+
+        /* Glassmorphism effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(225, 29, 72, 0.08);
+        }
+
+        /* Card Flip Styles */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+        }
+        
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Pulse Heart Beat */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.15); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.15); }
+            70% { transform: scale(1); }
+        }
+
+        .animate-heartbeat {
+            animation: heartbeat 1.8s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffe4e6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fb7185;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen relative">
+
+    <canvas id="heartCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <div class="relative z-10 max-w-4xl mx-auto px-4 py-8 space-y-16">
+
+        <header class="text-center pt-8 md:pt-14 space-y-4">
+            <div class="inline-block relative">
+                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-rose-100 text-rose-700 shadow-sm mb-2">
+                    <i class="fa-solid font-bold fa-heart text-rose-500 mr-2 animate-pulse"></i> Sadece Senin İçin Hazırlandı
+                </span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-bold text-gray-900 tracking-tight">
+                İyi Ki Varsın, <span class="text-rose-600 underline decoration-rose-300 decoration-wavy">Birtanem</span> ❤️
+            </h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-xl mx-auto font-light">
+                Hayatımı güzelleştiren, gülüşüyle karanlık günlerimi aydınlatan en değerli varlığıma küçük bir sürpriz...
+            </p>
+        </header>
+
+        <section class="glass-card rounded-2xl p-4 md:p-6 shadow-xl max-w-md mx-auto transition-all duration-300 hover:shadow-2xl">
+            <div class="flex items-center space-x-4">
+                <div class="relative group cursor-pointer" onclick="togglePlay()">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-rose-500 to-rose-300 flex items-center justify-center text-white text-2xl shadow-md group-hover:scale-105 transition-transform duration-200" id="albumArt">
+                        <i class="fa-solid fa-music animate-bounce"></i>
+                    </div>
+                    <button class="absolute inset-0 flex items-center justify-center bg-black/30 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i class="fa-solid fa-play" id="playIcon"></i>
+                    </button>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs uppercase tracking-wider text-rose-500 font-semibold">Bizim Şarkımız 🎵</span>
+                        <span class="text-xs text-gray-400">03:45</span>
+                    </div>
+                    <h3 class="text-gray-800 font-semibold truncate">Görünce Evrenimi Değiştiren Gülüşün</h3>
+                    <p class="text-sm text-gray-500 truncate">Seni Sevdiğimi Anladığım An</p>
+                    
+                    <!-- Progress bar -->
+                    <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2 overflow-hidden cursor-pointer" onclick="seekAudio(event)">
+                        <div id="audioProgress" class="bg-rose-500 h-1.5 rounded-full w-1/3 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card rounded-3xl p-6 md:p-10 text-center space-y-6 border border-white/80 shadow-2xl">
+            <div class="space-y-2">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
+                    <i class="fa-regular fa-clock text-rose-500 mr-2"></i>Birlikte Geçen Her An Çok Özel
+                </h2>
+                <p class="text-sm text-gray-500">Kalplerimizin birleştiği o güzel günden beri...</p>
+            </div>
+
+            <!-- Timer Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+                <div class="bg-white/80 rounded-2xl p-4 shadow-sm border border-rose-100 flex flex-col items-center">
+                    <span id="days" class="text-3xl md:text-5xl font-extrabold text-rose-600">00</span>
+                    <span class="text-xs md:text-sm font-medium text-gray-500 mt-1">GÜN</span>
+                </div>
+                <div class="bg-white/80 rounded-2xl p-4 shadow-sm border border-rose-100 flex flex-col items-center">
+                    <span id="hours" class="text-3xl md:text-5xl font-extrabold text-rose-600">00</span>
+                    <span class="text-xs md:text-sm font-medium text-gray-500 mt-1">SAAT</span>
+                </div>
+                <div class="bg-white/80 rounded-2xl p-4 shadow-sm border border-rose-100 flex flex-col items-center">
+                    <span id="minutes" class="text-3xl md:text-5xl font-extrabold text-rose-600">00</span>
+                    <span class="text-xs md:text-sm font-medium text-gray-500 mt-1">DAKİKA</span>
+                </div>
+                <div class="bg-white/80 rounded-2xl p-4 shadow-sm border border-rose-100 flex flex-col items-center">
+                    <span id="seconds" class="text-3xl md:text-5xl font-extrabold text-rose-600">00</span>
+                    <span class="text-xs md:text-sm font-medium text-gray-500 mt-1">SANİYE</span>
+                </div>
+            </div>
+            
+            <p class="text-xs text-gray-400 italic">Saniyeler geçer ama sana olan sevgim hiç bitmez ✨</p>
+        </section>
+
+        <section class="space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Neden Seni Çok Seviyorum?</h2>
+                <p class="text-gray-600 text-sm">Kartların üzerine tıklayarak gizli nedenleri keşfet! 💌</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                
+                <!-- Card 1 -->
+                <div class="flip-card h-48 cursor-pointer perspective-1000" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front glass-card flex flex-col items-center justify-center p-6 text-center border-2 border-rose-200">
+                            <i class="fa-solid fa-face-smile-beam text-4xl text-rose-500 mb-3"></i>
+                            <h3 class="font-bold text-gray-800 text-lg">Gülüşün</h3>
+                            <p class="text-xs text-rose-500 mt-2">Tıkla ve Oku ❤️</p>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center p-6 text-center shadow-lg">
+                            <p class="text-sm font-medium">Gülümsediğinde dünyadaki tüm dertleri unutturacak bir enerjiye sahipsin.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="flip-card h-48 cursor-pointer perspective-1000" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front glass-card flex flex-col items-center justify-center p-6 text-center border-2 border-rose-200">
+                            <i class="fa-solid fa-heart-pulse text-4xl text-rose-500 mb-3"></i>
+                            <h3 class="font-bold text-gray-800 text-lg">İyi Kalbin</h3>
+                            <p class="text-xs text-rose-500 mt-2">Tıkla ve Oku ❤️</p>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center p-6 text-center shadow-lg">
+                            <p class="text-sm font-medium">Herkese karşı olan merhametin, şefkatin ve sıcacık kalbin beni sana aşık ediyor.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="flip-card h-48 cursor-pointer perspective-1000" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front glass-card flex flex-col items-center justify-center p-6 text-center border-2 border-rose-200">
+                            <i class="fa-solid fa-wand-magic-sparkles text-4xl text-rose-500 mb-3"></i>
+                            <h3 class="font-bold text-gray-800 text-lg">Bana Hissettirdiklerin</h3>
+                            <p class="text-xs text-rose-500 mt-2">Tıkla ve Oku ❤️</p>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center p-6 text-center shadow-lg">
+                            <p class="text-sm font-medium">Yanındayken kendimi dünyanın en şanslı ve en güvende insanı hissediyorum.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="flip-card h-48 cursor-pointer perspective-1000" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front glass-card flex flex-col items-center justify-center p-6 text-center border-2 border-rose-200">
+                            <i class="fa-solid fa-comments text-4xl text-rose-500 mb-3"></i>
+                            <h3 class="font-bold text-gray-800 text-lg">Sohbetimiz</h3>
+                            <p class="text-xs text-rose-500 mt-2">Tıkla ve Oku ❤️</p>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center p-6 text-center shadow-lg">
+                            <p class="text-sm font-medium">Seninle saatlerce konuşsam da hiç sıkılmıyorum. Her anın ayrı bir neşe!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="flip-card h-48 cursor-pointer perspective-1000" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front glass-card flex flex-col items-center justify-center p-6 text-center border-2 border-rose-200">
+                            <i class="fa-solid fa-sun text-4xl text-rose-500 mb-3"></i>
+                            <h3 class="font-bold text-gray-800 text-lg">Işığın</h3>
+                            <p class="text-xs text-rose-500 mt-2">Tıkla ve Oku ❤️</p>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center p-6 text-center shadow-lg">
+                            <p class="text-sm font-medium">Girdiğin her ortama neşe saçıyorsun. Hayatımı renklendiren en güzel ışığımsın.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="flip-card h-48 cursor-pointer perspective-1000" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front glass-card flex flex-col items-center justify-center p-6 text-center border-2 border-rose-200">
+                            <i class="fa-solid fa-infinity text-4xl text-rose-500 mb-3"></i>
+                            <h3 class="font-bold text-gray-800 text-lg">Geleceğimiz</h3>
+                            <p class="text-xs text-rose-500 mt-2">Tıkla ve Oku ❤️</p>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center p-6 text-center shadow-lg">
+                            <p class="text-sm font-medium">Seninle kurduğum hayaller, yarınlara dair en büyük umudum ve mutluluğum.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Unutulmaz Anılarımız 📸</h2>
+                <p class="text-gray-600 text-sm">Birlikte biriktirdiğimiz güzel anlardan birkaç kare...</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Photo 1 -->
+                <div class="glass-card rounded-2xl overflow-hidden shadow-lg group hover:-translate-y-2 transition-all duration-300">
+                    <div class="h-64 bg-rose-100 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=80" alt="Anı 1" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/fecdd3/be123c?text=Bizim+Fotografimiz'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                            <span class="text-white text-sm font-medium">İlk Unutulmaz Buluşmamız</span>
+                        </div>
+                    </div>
+                    <div class="p-4 text-center">
+                        <h4 class="font-bold text-gray-800">O Güzel Gün</h4>
+                        <p class="text-xs text-gray-500 mt-1">Zamanın durmasını istediğim anlardan biri...</p>
+                    </div>
+                </div>
+
+                <!-- Photo 2 -->
+                <div class="glass-card rounded-2xl overflow-hidden shadow-lg group hover:-translate-y-2 transition-all duration-300">
+                    <div class="h-64 bg-rose-100 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&q=80" alt="Anı 2" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/fecdd3/be123c?text=Bizim+Fotografimiz'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                            <span class="text-white text-sm font-medium">Birlikte Güldüğümüz Anlar</span>
+                        </div>
+                    </div>
+                    <div class="p-4 text-center">
+                        <h4 class="font-bold text-gray-800">Kahkahalarımız</h4>
+                        <p class="text-xs text-gray-500 mt-1">Seninle her şey o kadar eğlenceli ki!</p>
+                    </div>
+                </div>
+
+                <!-- Photo 3 -->
+                <div class="glass-card rounded-2xl overflow-hidden shadow-lg group hover:-translate-y-2 transition-all duration-300">
+                    <div class="h-64 bg-rose-100 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&q=80" alt="Anı 3" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/fecdd3/be123c?text=Bizim+Fotografimiz'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                            <span class="text-white text-sm font-medium">Huzur Dolu Anlar</span>
+                        </div>
+                    </div>
+                    <div class="p-4 text-center">
+                        <h4 class="font-bold text-gray-800">Yan Yana</h4>
+                        <p class="text-xs text-gray-500 mt-1">Gelecekteki yüzlerce güzel anıya...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card rounded-3xl p-8 md:p-12 relative overflow-hidden border border-rose-200 shadow-xl">
+            <div class="absolute -right-8 -bottom-8 opacity-10 text-rose-600 pointer-events-none">
+                <i class="fa-solid fa-envelope-open-text text-9xl"></i>
+            </div>
+            
+            <div class="max-w-2xl mx-auto space-y-6">
+                <div class="flex items-center justify-between border-b border-rose-200 pb-4">
+                    <span class="text-xs uppercase tracking-widest text-rose-500 font-bold">Özel Mektup 💌</span>
+                    <i class="fa-solid fa-heart text-rose-400"></i>
+                </div>
+
+                <div class="space-y-4 text-gray-700 leading-relaxed text-lg font-light">
+                    <p class="handwriting text-3xl text-rose-600 font-bold">Sevgilim,</p>
+                    <p>
+                        Bu küçük web sitesini sana olan sevgimi ifade edebilmek ve birlikte biriktirdiğimiz güzel anları her zaman hatırlayabileceğimiz bir yer kılmak için hazırladım.
+                    </p>
+                    <p>
+                        Hayatıma girdiğin ilk andan itibaren her şey daha anlamlı, daha renkli ve çok daha güzel bir hal aldı. Yüzümdeki gülümsemenin en büyük sebebi sensin. Yanımda olduğun her an için, bana hissettirdiğin o kocaman sevgi için sana sonsuz teşekkür ederim.
+                    </p>
+                    <p>
+                        İyi ki hayatımdasın, iyi ki benimsin. Seni her geçen gün daha çok seviyorum.
+                    </p>
+                </div>
+
+                <div class="pt-6 border-t border-rose-200 flex justify-between items-end">
+                    <div>
+                        <p class="text-xs text-gray-400">Sonsuza kadar,</p>
+                        <p class="handwriting text-2xl font-bold text-rose-600 mt-1">Seni Çok Seven Biri ❤️</p>
+                    </div>
+                    <button onclick="triggerSurprise()" class="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2 transform active:scale-95">
+                        <i class="fa-solid fa-gift"></i>
+                        <span>Beni Ne Kadar Seviyorsun?</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center py-6 text-gray-500 text-sm">
+            <p class="flex items-center justify-center space-x-1">
+                <span>Sevgiyle ve Aşkla Yapıldı</span>
+                <i class="fa-solid fa-heart text-rose-500 animate-heartbeat inline-block mx-1"></i>
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Her Hak Saklıdır © Seni Seven Kalbim</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // ----------------------------------------------------
+        // 1. RELATIONSHIP TIMER (SİLİP KENDİ TARİHİNİZİ YAZIN)
+        // Format: YIL, AY (0'dan başlar: 0=Ocak, 1=Şubat..), GÜN, SAAT, DAKİKA
+        // Örneğin: 14 Şubat 2023 -> new Date(2023, 1, 14, 0, 0)
+        // ----------------------------------------------------
+        const startDate = new Date(2026, 0, 1, 0, 0); 
+
+        function updateTimer() {
+            const now = new Date();
+            const diff = now - startDate;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // ----------------------------------------------------
+        // 2. FLOATING HEARTS CANVAS ANIMATION
+        // Arka planda uçuşan tatlı kalpler
+        // ----------------------------------------------------
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const hearts = [];
+        const heartCount = 25;
+
+        class Heart {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.size = Math.random() * 15 + 10;
+                this.speed = Math.random() * 1.5 + 0.5;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.swing = Math.random() * 0.02;
+                this.swingAngle = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                this.y -= this.speed;
+                this.swingAngle += this.swing;
+                this.x += Math.sin(this.swingAngle) * 0.5;
+
+                if (this.y < -20) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = '#f43f5e';
+                ctx.beginPath();
+                const topCurveHeight = this.size * 0.3;
+                ctx.moveTo(this.x, this.y + topCurveHeight);
+                // top left curve
+                ctx.bezierCurveTo(
+                    this.x, this.y, 
+                    this.x - this.size / 2, this.y, 
+                    this.x - this.size / 2, this.y + topCurveHeight
+                );
+                // bottom left curve
+                ctx.bezierCurveTo(
+                    this.x - this.size / 2, this.y + (this.size + topCurveHeight) / 2, 
+                    this.x, this.y + this.size, 
+                    this.x, this.y + this.size
+                );
+                // bottom right curve
+                ctx.bezierCurveTo(
+                    this.x, this.y + this.size, 
+                    this.x + this.size / 2, this.y + (this.size + topCurveHeight) / 2, 
+                    this.x + this.size / 2, this.y + topCurveHeight
+                );
+                // top right curve
+                ctx.bezierCurveTo(
+                    this.x + this.size / 2, this.y, 
+                    this.x, this.y, 
+                    this.x, this.y + topCurveHeight
+                );
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < heartCount; i++) {
+            hearts.push(new Heart());
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hearts.forEach(heart => {
+                heart.update();
+                heart.draw();
+            });
+            requestAnimationFrame(animateCanvas);
+        }
+
+        window.onload = function() {
+            animateCanvas();
+        };
+
+        // ----------------------------------------------------
+        // 3. AUDIO PLAYER SIMULATION / WEB AUDIO SYNTH
+        // Şarkı çalma efekti ve tatlı arka plan melodisi
+        // ----------------------------------------------------
+        let isPlaying = false;
+        let audioCtx = null;
+        let playInterval = null;
+
+        function togglePlay() {
+            const playIcon = document.getElementById('playIcon');
+            const albumArt = document.getElementById('albumArt');
+            const progressBar = document.getElementById('audioProgress');
+
+            if (!isPlaying) {
+                isPlaying = true;
+                playIcon.className = 'fa-solid fa-pause';
+                albumArt.classList.add('animate-pulse');
+                
+                // Müzik çalma simülasyonu - basit tatlı bir sinüs ton dizilimi
+                startToneMelody();
+
+                let progress = 33;
+                playInterval = setInterval(() => {
+                    progress = (progress + 0.5) % 100;
+                    progressBar.style.width = progress + '%';
+                }, 300);
+
+            } else {
+                isPlaying = false;
+                playIcon.className = 'fa-solid fa-play';
+                albumArt.classList.remove('animate-pulse');
+                clearInterval(playInterval);
+                stopToneMelody();
+            }
+        }
+
+        // Tatlı bir romantik melodi sentezleyici
+        let synthInterval = null;
+        function startToneMelody() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const notes = [261.63, 329.63, 392.00, 523.25, 440.00, 349.23]; // C4, E4, G4, C5, A4, F4
+                let index = 0;
+
+                synthInterval = setInterval(() => {
+                    if (!isPlaying) return;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(notes[index % notes.length], audioCtx.currentTime);
+
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 1.2);
+
+                    index++;
+                }, 800);
+            } catch (e) {
+                console.log('Audio API not supported or restricted');
+            }
+        }
+
+        function stopToneMelody() {
+            if (synthInterval) clearInterval(synthInterval);
+        }
+
+        function seekAudio(e) {
+            const bar = e.currentTarget;
+            const clickPosition = (e.pageX - bar.getBoundingClientRect().left) / bar.offsetWidth;
+            document.getElementById('audioProgress').style.width = (clickPosition * 100) + '%';
+        }
+
+        // ----------------------------------------------------
+        // 4. SURPRISE CONFETTI & HEART BURST
+        // Düğmeye basıldığında çalışan sürpriz kalpler
+        // ----------------------------------------------------
+        function triggerSurprise() {
+            // Heart Confetti animation
+            const duration = 3 * 1000;
+            const animationEnd = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#f43f5e', '#fda4af', '#fff1f2']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#f43f5e', '#fda4af', '#fff1f2']
+                });
+
+                if (Date.now() < animationEnd) {
+                    requestAnimationFrame(frame);
+                }
+            })();
+
+            // Mesaj göster
+            setTimeout(() => {
+                const messageBox = document.createElement('div');
+                messageBox.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 glass-card border-2 border-rose-400 p-8 rounded-3xl shadow-2xl text-center z-50 max-w-sm space-y-4 animate-bounce';
+                messageBox.innerHTML = `
+                    <div class="text-5xl">💖</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Dünyalar Kadar!</h3>
+                    <p class="text-gray-600 text-sm">Sana olan sevgim evrenin sonsuzluğu kadar büyük!</p>
+                    <button onclick="this.parentElement.remove()" class="px-6 py-2 bg-rose-500 text-white rounded-full font-medium hover:bg-rose-600 transition-colors">
+                        Seni Çok Seviyorum 🥰
+                    </button>
+                `;
+                document.body.appendChild(messageBox);
+            }, 500);
+        }
+    </script>
+</body>
+</html>
